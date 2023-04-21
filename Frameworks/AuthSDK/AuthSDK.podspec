@@ -14,4 +14,5 @@ Pod::Spec.new do |spec|
 
   spec.ios.deployment_target = '14.0'
   spec.dependency 'R.swift'
+  spec.dependency 'UIComponents'
 end
