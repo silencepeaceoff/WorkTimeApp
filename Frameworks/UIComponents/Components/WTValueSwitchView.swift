@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-extension WTTitleSwitchView {
+extension WTValueSwitchView {
   public enum ActivityState {
     case left
     case right
@@ -19,14 +19,14 @@ extension WTTitleSwitchView {
   }
 }
 
-open class WTTitleSwitchView: BaseView {
+open class WTValueSwitchView: BaseView {
 
   private let firstLabel = UILabel()
   private let separatorView = UILabel()
   private let secondLabel = UILabel()
   private let loginButton = UIButton()
 
-  private let animationTimeInterval: TimeInterval = 0.3
+  private let animationTimeInterval: TimeInterval = 0.4
   private var animationPoint: CGFloat = 0
   private var animationTimer = Timer()
 
@@ -46,6 +46,8 @@ open class WTTitleSwitchView: BaseView {
   override func setup() {
     super.setup()
 
+    UIFont.registerFonts(from: Bundle.uiComponents)
+
     setupSeperatorView()
     setupFirstLabel()
     setupSecondLabel()
@@ -54,13 +56,14 @@ open class WTTitleSwitchView: BaseView {
 }
 
 //MARK: - Setup UI
-private extension WTTitleSwitchView {
+private extension WTValueSwitchView {
 
   func setupSeperatorView() {
     addSubview(separatorView)
 
     separatorView.text = "/"
-    separatorView.font = .systemFont(ofSize: 30, weight: .medium)
+    separatorView.font = WTFont.robotoMedium(size: 30)
+    separatorView.textColor = WTColor.title_active()
 
     separatorView.snp.makeConstraints {
       $0.bottom.equalToSuperview()
@@ -70,8 +73,9 @@ private extension WTTitleSwitchView {
   func setupFirstLabel() {
     addSubview(firstLabel)
 
-    firstLabel.font = .systemFont(ofSize: 30, weight: .medium)
+    firstLabel.font = WTFont.robotoMedium(size: 30)
     firstLabel.layoutMargins.bottom = 0
+    firstLabel.textColor = WTColor.title_active()
 
     firstLabel.snp.makeConstraints {
       $0.bottom.leading.equalToSuperview()
@@ -82,12 +86,12 @@ private extension WTTitleSwitchView {
   func setupSecondLabel() {
     addSubview(secondLabel)
 
-    secondLabel.font = .systemFont(ofSize: 20, weight: .regular)
+    secondLabel.font = WTFont.robotoRegular(size: 20)
     secondLabel.layoutMargins.bottom = 0
-    secondLabel.alpha = 0.3
+    secondLabel.textColor = WTColor.title_inactive()
 
     secondLabel.snp.makeConstraints {
-      $0.bottom.trailing.equalToSuperview()
+      $0.trailing.equalToSuperview()
       $0.leading.equalTo(separatorView.snp.trailing).offset(10)
       $0.bottom.equalToSuperview().inset(2.5)
     }
@@ -106,13 +110,13 @@ private extension WTTitleSwitchView {
 
 }
 
-public extension WTTitleSwitchView {
+public extension WTValueSwitchView {
   @IBAction func buttonHandler() {
     state.toggle()
   }
 }
 
-private extension WTTitleSwitchView {
+private extension WTValueSwitchView {
   func animateStateSetting() {
     let activeLabel = state == .left ? secondLabel : firstLabel
     let inactiveLabel = state == .left ? firstLabel : secondLabel
@@ -127,8 +131,9 @@ private extension WTTitleSwitchView {
     }
 
     UIView.animate(withDuration: animationTimeInterval) {
-      activeLabel.alpha = 0.3
-      inactiveLabel.alpha = 1
+      activeLabel.textColor = WTColor.title_inactive()
+      inactiveLabel.textColor = WTColor.title_active()
+
 
       UIView.animate(withDuration: self.animationTimeInterval) {
         inactiveLabel.snp.remakeConstraints {
@@ -137,7 +142,7 @@ private extension WTTitleSwitchView {
         }
 
         activeLabel.snp.remakeConstraints {
-          $0.trailing.bottom.equalToSuperview()
+          $0.trailing.equalToSuperview()
           $0.leading.equalTo(self.separatorView.snp.trailing).offset(10)
           $0.bottom.equalToSuperview().inset(2.5)
         }
@@ -147,20 +152,20 @@ private extension WTTitleSwitchView {
 
       self.animationTimer.invalidate()
       self.animationTimer = Timer.scheduledTimer(withTimeInterval: self.animationTimeInterval / 25,
-                                            repeats: true,
-                                            block: { timer in
+                                                 repeats: true,
+                                                 block: { timer in
         if self.animationPoint < 10 {
           self.animationPoint += 0.4
 
           let inactiveSize = 20 + self.animationPoint
           inactiveLabel.font = inactiveSize > 25
-          ? .systemFont(ofSize: inactiveSize, weight: .medium)
-          : .systemFont(ofSize: inactiveSize, weight: .regular)
+          ? R.font.robotoMedium(size: inactiveSize)
+          : R.font.robotoRegular(size: inactiveSize)
 
           let activeSize = 30 - self.animationPoint
           activeLabel.font = activeSize < 25
-          ? .systemFont(ofSize: activeSize, weight: .regular)
-          : .systemFont(ofSize: activeSize, weight: .medium)
+          ? R.font.robotoRegular(size: activeSize)
+          : R.font.robotoMedium(size: activeSize)
 
         } else {
           timer.invalidate()
